@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background-color: #FFF;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            function action(state) {
+                var socket = io();
+                switch (state) {
+                    case "end":
+                        socket.emit('control', {
+                            newState: "stopAll",
+                            stateReq: false
+                        })
+                        break;
+                    case "stop":
+                        socket.emit('control', {
+                            newState: "stopMC",
+                            stateReq: false
+                        })
+                        break;
+                    case "start":
+                        socket.emit('control', {
+                            newState: "startMC",
+                            stateReq: false
+                        })
+                        break;
+                    case "restart":
+                        socket.emit('control', {
+                            newState: "restart",
+                            stateReq: false
+                        })
+                        break;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h4>Server Controls:</h4>
+        <button onclick="action('end')">Stop Backend & Minecraft Server</button>
+        <button id='startStop'></button> <!--this is gonna be the stop/start mc server button-->
+        <button onclick="action('restart')">Restart Minecraft server</button>
+    </body>
+</html>

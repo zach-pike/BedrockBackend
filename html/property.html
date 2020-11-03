@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family:Arial, Helvetica, sans-serif;
+                background-color: #FFF;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var keys;
+            function getProperty() {
+                  var socket = io(); 
+                  socket.emit('property', {
+                    propertyReq: true
+                  });
+              }
+            $(function () { 
+                socket = io();
+                
+                $('form').submit(function(e) {
+                    e.preventDefault(); // prevents page reloading
+                    if (confirm("Are you sure you want to do this? This will restart the server!")) {
+                        var propertys = {};
+                        for (let i=0; i < Object.keys(keys).length; i++) {
+                            propertys[keys[i][0]] = $("#" +keys[i][0]).val();
+                        }
+                        socket.emit('property', {
+                            propertys,
+                            propertyReq: false
+                        }); //emit the value  
+                        return false; //idfk
+                        location.reload();
+                    }
+                });
+                
+                //when recive a new property, add a new input element to the form and add text to it
+                socket.on('property', function(msg){
+                    keys = Object.entries(msg);
+                    for (let i=0; i < keys.length; i++) {
+                        $('#property').append($('<p>').text(keys[i][0]))
+                        $('#property').append($('<input>').val(keys[i][1]).attr('id', keys[i][0]).attr('autocomplete', 'off'));
+                        $('#property').append($('<br>'))
+                    }
+                    $('#property').append($('<button>').text("Change"));
+                });
+            });
+          </script>
+    </head>
+    <body onload='getProperty()'>
+        <form id='property' action=''>
+        </form>
+    </body>
+</html>

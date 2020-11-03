@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>Server Manager</title>
+        <style>
+            body {
+                font-family: Arial;
+                text-align: left;
+                background-color: #eee;
+                padding: 30px;
+            }
+            #server, #server2 {
+                display: inline;
+            }
+        </style>
+            <script src="/socket.io/socket.io.js"></script>
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script>
+                var socket = io();
+                setInterval(function () {
+                socket.emit('control', {
+                    stateReq: true
+                })
+            }, 700);
+            $(function () {
+                var iframe = document.getElementById("controls");
+
+                //when recive a new message, ig add a new li element to the ul and add text to it
+                socket.on('control', function(msg){
+                    if (msg.stateUpdate == true) {
+                        if (msg.state) {
+                            $('#server2').text(" RUNNING").attr('style', 'color: green;');
+                            iframe.contentWindow.document.getElementById('startStop').innerHTML = "Stop";
+                            iframe.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('stop')");
+                        } else {
+                            $('#server2').text(" STOPPED").attr('style', 'color: red;');
+                            iframe.contentWindow.document.getElementById('startStop').innerHTML = "Start";
+                            iframe.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('start')");
+                        }
+                    } else {
+
+                    }
+                });
+            });
+            </script>
+    </head>
+    <body>
+        <h1 id='server'>SERVER IS</h1><h1 id='server2'></h1>
+        <h1>Server Console</h1>
+        <hr>
+        <embed src="console" width="550" height="600">
+        <hr>
+        <h1>Properties</h1>
+        <embed src="propertyControl" width="550" height="600">
+        <hr>
+        <h1>Server controls</h1>
+        <hr>
+        <iframe src="controls" id='controls' width="550" height="100" frameborder="0"></iframe>
+    </body>
+</html>
