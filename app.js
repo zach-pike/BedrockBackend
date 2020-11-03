@@ -36,6 +36,9 @@ app.get('/controls', (req, res) => {
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(__dirname + '/favicon.ico');
 });
+app.get('/online', (req, res) => {
+    res.sendFile(__dirname + '/html/online.html');
+});
 http.listen(controlPannelPort, () => {
     console.log('listening on *:' + controlPannelPort);
     log(dateTime() + " http server opened");
@@ -116,8 +119,9 @@ function propertyUpdater(data) {
 function controlServer(data) {
     if (data.stateReq == true) {
         io.emit('control', {
-            state: serverRunning,
-            stateUpdate: true
+            "state": serverRunning,
+            "online": online, 
+            "stateUpdate": true
         });
     } else {
         switch (data.newState) {

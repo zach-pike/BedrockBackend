@@ -22,22 +22,28 @@
                 })
             }, 700);
             $(function () {
-                var iframe = document.getElementById("controls");
+                var controls = document.getElementById("controls");
+                var online = document.getElementById("online");
 
                 //when recive a new message, ig add a new li element to the ul and add text to it
                 socket.on('control', function(msg){
                     if (msg.stateUpdate == true) {
                         if (msg.state) {
                             $('#server2').text(" RUNNING").attr('style', 'color: green;');
-                            iframe.contentWindow.document.getElementById('startStop').innerHTML = "Stop";
-                            iframe.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('stop')");
+                            controls.contentWindow.document.getElementById('startStop').innerHTML = "Stop";
+                            controls.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('stop')");
                         } else {
                             $('#server2').text(" STOPPED").attr('style', 'color: red;');
-                            iframe.contentWindow.document.getElementById('startStop').innerHTML = "Start";
-                            iframe.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('start')");
+                            controls.contentWindow.document.getElementById('startStop').innerHTML = "Start";
+                            controls.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('start')");
                         }
-                    } else {
-
+                        online.contentWindow.document.getElementById('onlineList').innerHTML = "";
+                        for (let i=0; i < msg.online.length; i++) {
+                            var node = document.createElement("LI"); //create element
+                            var textnode = document.createTextNode(msg.online[i]); //make textnode
+                            node.appendChild(textnode);
+                            online.contentWindow.document.getElementById('onlineList').appendChild(node);
+                        }
                     }
                 });
             });
@@ -55,5 +61,10 @@
         <h1>Server controls</h1>
         <hr>
         <iframe src="controls" id='controls' width="550" height="100" frameborder="0"></iframe>
+        <hr>
+        <h1>Online</h1>
+        <hr>
+        <iframe src="online" id='online' width="550" height="200" frameborder="0"></iframe>
+        <hr>
     </body>
 </html>
