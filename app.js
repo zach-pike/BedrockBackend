@@ -23,8 +23,6 @@ fs.readFile('login.json', (err, data) => {
     let loginInfo = JSON.parse(data);
     login.push(loginInfo.login.username);
     login.push(loginInfo.login.password);
-    console.log('login info loaded')
-    console.log(login)
 });
 
 //variables used in the code
@@ -124,14 +122,19 @@ function propertyUpdater(data) {
             serverProperties.set(keys[i][0], keys[i][1]);
         }
         serverProperties.save(serverDirectory + '/server.properties');
-        shutdownOnMessage = false;
-        runCommand('stop');
+        stopServer();
         setTimeout(function () {
             console.log("starting")
             startServer();
-            shutdownOnMessage = true;
         }, 5000);
     }
+}
+
+function stopServer() {
+    shutdownOnMessage = false;
+    runCommand('stop');
+    serverRunning = false;
+    online = [];
 }
 
 function controlServer(data) {
@@ -145,26 +148,22 @@ function controlServer(data) {
         switch (data.newState) {
             case "stopMC":
                 io.emit('console message', 'Stopping Minecraft Server');
-                shutdownOnMessage = false;
-                runCommand('stop');
+                stopServer();
                 break;
             case "startMC":
                 io.emit('console message', 'Starting Minecraft Server');
-                shutdownOnMessage = true;
                 startServer();
                 break;
             case "restart":
                 io.emit('console message', 'Restarting Minecraft Server');
-                shutdownOnMessage = false;
-                runCommand('stop');
+                stopServer();
                 setTimeout(function () {
-                    shutdownOnMessage = true;
                     startServer();
                 }, 5000);
                 break;
             case "stopAll":
                 io.emit('console message', 'Stopping everything');
-                runCommand('stop');
+                stopServer();
                 break;
         }
     }
@@ -193,6 +192,7 @@ io.on('connection', (socket) => {
 function startServer() {
     child = execFile(serverDirectory + '/bedrock_server.exe', []);
     serverRunning = true;
+    shutdownOnMessage = true;
     // use event hooks to provide sa callback to execute when data are available: 
     child.stdout.on('data', function(data) {
         //keeps adding to the line buffer from the data stream
