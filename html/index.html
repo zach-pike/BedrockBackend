@@ -1,70 +1,37 @@
 <html>
     <head>
-        <title>Server Manager</title>
         <style>
             body {
-                font-family: Arial;
-                text-align: left;
+                font-family: Arial, Helvetica, sans-serif;
                 background-color: #eee;
-                padding: 30px;
-            }
-            #server, #server2 {
-                display: inline;
+                text-align: center;
+                margin: 3%;
             }
         </style>
-            <script src="/socket.io/socket.io.js"></script>
-            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-            <script>
-                var socket = io();
-                setInterval(function () {
-                socket.emit('control', {
-                    stateReq: true
-                })
-            }, 700);
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
             $(function () {
-                var controls = document.getElementById("controls");
-                var online = document.getElementById("online");
+            var socket = io();
 
-                //when recive a new message, ig add a new li element to the ul and add text to it
-                socket.on('control', function(msg){
-                    if (msg.stateUpdate == true) {
-                        if (msg.state) {
-                            $('#server2').text(" RUNNING").attr('style', 'color: green;');
-                            controls.contentWindow.document.getElementById('startStop').innerHTML = "Stop";
-                            controls.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('stop')");
-                        } else {
-                            $('#server2').text(" STOPPED").attr('style', 'color: red;');
-                            controls.contentWindow.document.getElementById('startStop').innerHTML = "Start";
-                            controls.contentWindow.document.getElementById('startStop').setAttribute('onclick', "action('start')");
-                        }
-                        online.contentWindow.document.getElementById('onlineList').innerHTML = "";
-                        for (let i=0; i < msg.online.length; i++) {
-                            var node = document.createElement("LI"); //create element
-                            var textnode = document.createTextNode(msg.online[i]); //make textnode
-                            node.appendChild(textnode);
-                            online.contentWindow.document.getElementById('onlineList').appendChild(node);
-                        }
-                    }
-                });
+            $('form').submit(function(e) {
+                socket.emit('login', {
+                    "username": $("#username").val(),
+                    "password": $("#password").val() 
+                }); //emit the value
+                location.reload();     
+                return false; //idfk
             });
-            </script>
+      });
+        </script>
     </head>
     <body>
-        <h1 id='server'>SERVER IS</h1><h1 id='server2'></h1>
-        <h1>Server Console</h1>
+        <h1 id="header">Server Console Login</h1>
         <hr>
-        <embed src="console" width="550" height="600">
-        <hr>
-        <h1>Properties</h1>
-        <embed src="propertyControl" width="550" height="600">
-        <hr>
-        <h1>Server controls</h1>
-        <hr>
-        <iframe src="controls" id='controls' width="550" height="100" frameborder="0"></iframe>
-        <hr>
-        <h1>Online</h1>
-        <hr>
-        <iframe src="online" id='online' width="550" height="200" frameborder="0"></iframe>
-        <hr>
+        <form action="">
+            <input id="username" type="text" placeholder="Username"><br>
+            <input id="password" type="password" placeholder="Password"><br>
+            <button>Login</button>
+        </form>
     </body>
 </html>

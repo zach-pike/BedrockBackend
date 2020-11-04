@@ -14,6 +14,19 @@ var serverProperties = propertiesReader(serverDirectory + '/server.properties', 
 //the child process variables
 var child;
 
+var login = []
+var authed = false;
+
+
+fs.readFile('login.json', (err, data) => {
+    if (err) throw err;
+    let loginInfo = JSON.parse(data);
+    login.push(loginInfo.login.username);
+    login.push(loginInfo.login.password);
+    console.log('login info loaded')
+    console.log(login)
+});
+
 //variables used in the code
 var online = [];
 var serverRunning = false;
@@ -22,7 +35,12 @@ var shutdownOnMessage = true;
 
 //express http things are here
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/html/index.html');
+    if (authed == true) {
+        res.sendFile(__dirname + '/html/homePage.html');
+        authed = false;
+    } else {
+        res.sendFile(__dirname + '/html/index.html');
+    }
 });
 app.get('/console', (req, res) => {
     res.sendFile(__dirname + '/html/console.html');
@@ -163,12 +181,19 @@ io.on('connection', (socket) => {
     socket.on('control', (msg) => {
         controlServer(msg)
     })
+    socket.on('login', (msg) => {
+        if (msg.username == login[0] && msg.password == login[1]) {
+            authed = true;
+        } else {
+            authed = false;
+        }
+    })
 });
 
 function startServer() {
     child = execFile(serverDirectory + '/bedrock_server.exe', []);
     serverRunning = true;
-    // use event hooks to provide a callback to execute when data are available: 
+    // use event hooks to provide sa callback to execute when data are available: 
     child.stdout.on('data', function(data) {
         //keeps adding to the line buffer from the data stream
         lineBuffer += data.toString();
