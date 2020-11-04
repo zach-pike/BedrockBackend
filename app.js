@@ -172,8 +172,8 @@ function controlServer(data) {
     }
 }
 
-function auth() {
-    if (msg.username == login[0] && msg.password == login[1]) {
+function auth(data) {
+    if (data.username == login[0] && data.password == login[1]) {
         authed = true;
     } else {
         authed = false;
@@ -192,7 +192,7 @@ io.on('connection', (socket) => {
         controlServer(msg)
     })
     socket.on('login', (msg) => {
-        auth();
+        auth(msg);
     })
 });
 
