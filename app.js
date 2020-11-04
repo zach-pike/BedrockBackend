@@ -113,6 +113,7 @@ function runCommand(command) {
 }
 //property updater
 function propertyUpdater(data) {
+    log(dateTime() + " WebClient updated the server properties")
     if (data.propertyReq == true) {
         var propertys = serverProperties.getAllProperties();
         io.emit('property', propertys);
@@ -122,15 +123,16 @@ function propertyUpdater(data) {
             serverProperties.set(keys[i][0], keys[i][1]);
         }
         serverProperties.save(serverDirectory + '/server.properties');
+        log(dateTime() + " Restarting Server...");
         stopServer();
         setTimeout(function () {
-            console.log("starting")
             startServer();
         }, 5000);
     }
 }
 
 function stopServer() {
+    log(dateTime() + " Stopping server");
     shutdownOnMessage = false;
     runCommand('stop');
     serverRunning = false;
@@ -145,6 +147,7 @@ function controlServer(data) {
             "stateUpdate": true
         });
     } else {
+        log(dateTime() + " Running server command: " + data.newState);
         switch (data.newState) {
             case "stopMC":
                 io.emit('console message', 'Stopping Minecraft Server');
@@ -169,6 +172,14 @@ function controlServer(data) {
     }
 }
 
+function auth() {
+    if (msg.username == login[0] && msg.password == login[1]) {
+        authed = true;
+    } else {
+        authed = false;
+    }
+}
+
 //socket.io handler
 io.on('connection', (socket) => {
     socket.on('console message', (msg) => {
@@ -181,11 +192,7 @@ io.on('connection', (socket) => {
         controlServer(msg)
     })
     socket.on('login', (msg) => {
-        if (msg.username == login[0] && msg.password == login[1]) {
-            authed = true;
-        } else {
-            authed = false;
-        }
+        auth();
     })
 });
 
